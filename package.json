@@ -11,6 +11,7 @@
     "example": "node --inspect -r ts-node/register examples/example.ts"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.15.0",
     "puppeteer": "^22.13.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",

@@ -12,6 +12,7 @@ import { Selector } from "./selector";
 import { whenSubtitleOn } from "./external";
 import EventEmitter from "events";
 import { transribeToText } from "./helpers";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export class Notulen extends EventEmitter implements NotulenInterface {
   private browser: Browser;
@@ -159,15 +160,26 @@ export class Notulen extends EventEmitter implements NotulenInterface {
   public async stop(): Promise<void> {
     // TODO: Convert the transribe to summary
     const transcribe = transribeToText(this.transcribe);
+
+    // summary the meeting
+    const fullPrompt = `${this.config.prompt} ${transcribe}`;
+
+    // Access your API key as an environment variable (see "Set up your API key" above)
+    const genAI = new GoogleGenerativeAI(this.config.geminiApiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const result = await model.generateContent(fullPrompt);
+    const response = await result.response;
+    const text = response.text();
     const meetingResult: MeetingResult = {
       title: "Meeting",
       googleMeetLink: this.config.googleMeetUrl,
       recordingLocation: this.config.recordingLocation,
       transribe: transcribe,
-      summary: "Summary",
+      summary: text,
     };
-    await this.browser.close();
 
+    await this.browser.close();
     // Emit the end event
     this.emit("end", meetingResult);
   }
