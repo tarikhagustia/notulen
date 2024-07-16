@@ -13,12 +13,18 @@ import { whenSubtitleOn } from "./external";
 import EventEmitter from "events";
 import { transribeToText } from "./helpers";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { createWriteStream, WriteStream, existsSync, mkdirSync } from "fs";
+import { Transform } from "stream";
 
 export class Notulen extends EventEmitter implements NotulenInterface {
   private browser: Browser;
   private page: Page;
   private config: NotulenConfig;
   private transcribe: Transribe[] = [];
+  private videoOutput: string;
+  private videoFileStream: WriteStream;
+  private videoStream: Transform;
+  private meetingTitle: string;
 
   constructor(config: NotulenConfig) {
     super();
@@ -30,7 +36,18 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     // check if the recording location is not provided
     if (!config.recordingLocation) {
       config.recordingLocation = "./";
+    } else {
+      // check if recordingLocation is existing and create it otherwise
+
+      if (!existsSync(config.recordingLocation)) {
+        mkdirSync(config.recordingLocation);
+      }
     }
+
+    // cleanup double slashs
+    this.videoOutput = `${
+      config.recordingLocation
+    }/meeting-${Date.now()}.webm`.replace(/([^:])(\/\/+)/g, "$1/");
 
     this.config = config;
   }
@@ -53,6 +70,9 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     });
 
     this.page = await this.browser.newPage();
+
+    // start video steam
+    this.videoFileStream = createWriteStream(this.videoOutput);
   }
 
   public async listen(): Promise<void> {
@@ -77,6 +97,10 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     await this.page.waitForSelector('span[class="VfPpkd-vQzf8d"]');
     await nameInput.focus();
     await this.page.keyboard.press("Enter");
+
+    // Start recording
+    this.videoStream = await getStream(this.page, { audio: true, video: true });
+    this.videoStream.pipe(this.videoFileStream);
 
     // Waiting for Meeting has been started
     await this.page.waitForSelector(".VYBDae-Bz112c-RLmnJb");
@@ -125,13 +149,10 @@ export class Notulen extends EventEmitter implements NotulenInterface {
       // Just for ignoring TS error
     }
 
-    // TODO: Add transribe function
-
+    // Add transribe function
     this.listenForTransribe();
 
-    // TODO: Record the meeting
-
-    // TODO: Listen for the meeting to end (by checking if the participant has left the meeting)
+    // Listen for the meeting to end (by checking if the participant has left the meeting)
     await this.page.evaluate(() => {
       const target = document.querySelector("div[class='uGOf1d']");
       setInterval(() => {
@@ -141,6 +162,12 @@ export class Notulen extends EventEmitter implements NotulenInterface {
         }
       }, 1000);
     });
+
+    // Set the meeting title
+    const meetingTitle = await this.page.waitForSelector(".u6vdEc.ouH3xe");
+    this.meetingTitle = await meetingTitle.evaluate((el) => el.textContent);
+
+    // TODO: Listen if the bot has been kicked from the meeting
   }
 
   private async listenForTransribe() {
@@ -148,7 +175,6 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     await this.page.exposeFunction(
       "setTransribe",
       (scripts: any[], lastSpeaker: string) => {
-        console.log(scripts, lastSpeaker);
         this.transcribe = scripts;
       }
     );
@@ -158,7 +184,11 @@ export class Notulen extends EventEmitter implements NotulenInterface {
   }
 
   public async stop(): Promise<void> {
-    // TODO: Convert the transribe to summary
+    // Stop File and video streaming
+    await this.videoStream.destroy();
+    await this.videoFileStream.close();
+
+    // Convert the transribe to summary
     const transcribe = transribeToText(this.transcribe);
 
     // summary the meeting
@@ -172,14 +202,15 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     const response = await result.response;
     const text = response.text();
     const meetingResult: MeetingResult = {
-      title: "Meeting",
+      title: this.meetingTitle,
       googleMeetLink: this.config.googleMeetUrl,
-      recordingLocation: this.config.recordingLocation,
+      recordingLocation: this.videoOutput,
       transribe: transcribe,
       summary: text,
     };
 
     await this.browser.close();
+
     // Emit the end event
     this.emit("end", meetingResult);
   }
