@@ -1,0 +1,1 @@
+export { Notulen } from "./notulen";

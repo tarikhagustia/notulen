@@ -1,0 +1,22 @@
+{
+  "name": "@tarikhagustia/notulen",
+  "version": "0.0.1",
+  "description": "A simple Google meet note taking app with AI transcription",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "scripts": {
+    "example": "node --inspect -r ts-node/register examples/example.ts"
+  },
+  "dependencies": {
+    "puppeteer": "^22.13.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "puppeteer-stream": "^3.0.15"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
+  }
+}
