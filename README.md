@@ -2,6 +2,10 @@
 
 Notulen is a private Google meet AI Note Taker that takes notes during a Google meet session. It uses the Puppeteer to join the meeting and use Puppeteer steam to convert the screen to video. The caption is generated using Google meet caption by default. Once the meeting is done the transribe is sent to the Google gemini API to generate the notes.
 
+## Known issue
+- Google meet HTML element always changing, sometimes the bot can't join the meeting because the element is not found.
+- Need to find the correct selector for all actions so the bot can work properly.
+
 ## Installation
 
 Install via npm or yarn
