@@ -28,6 +28,7 @@ import { MeetingResult } from "../src/interfaces";
 
 async function main() {
   const client = new Notulen({
+    debug: false, // debug mode to show the browser
     name: "My Assistant", // Bot name
     googleMeetUrl: "https://meet.google.com/xxx-xxx-xxx", // your google meet link
     language: "id-ID", // language for caption generation
@@ -51,6 +52,11 @@ async function main() {
 // Start the main function
 main();
 ```
+## Todos
+- [ ] Add logging feature
+- [ ] ffmpeg integration to convert the video to mp4
+- [ ] Able to change profile picture based on image or video
+- [ ] Integrate with more LLM APIs, will good if this package can be agnostic to the API
 
 ## Contributing
 

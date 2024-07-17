@@ -31,4 +31,10 @@ export interface NotulenConfig {
    * The location to save the recording. if this is not provided, the recording will be saved in the current directory.
    */
   recordingLocation?: string;
+
+  /**
+   * Debug mode
+   * if this is set to true, the chrome browser will be visible.
+   */
+  debug?: boolean;
 }

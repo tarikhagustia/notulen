@@ -5,7 +5,6 @@ export function whenSubtitleOn() {
   var last_speaker = "";
   // DOM element containing all subtitles
   const subtitleDiv = document.querySelector("div[jsname='dsyhDe']");
-  console.log(script);
   const subtitleObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       // Skip ts rules

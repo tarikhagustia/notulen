@@ -7,6 +7,7 @@ async function main() {
     googleMeetUrl: "https://meet.google.com/bvk-ryhf-tkk",
     language: "id-ID",
     geminiApiKey: "API KEYS",
+    debug: false
   });
 
   await client.listen();

@@ -58,10 +58,10 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     stealthPlugin.enabledEvasions.delete("iframe.contentWindow");
     stealthPlugin.enabledEvasions.delete("media.codecs");
     puppeteer.use(stealthPlugin);
-    // setup pupetter
+    // setup puppeteer
     this.browser = await launch(puppeteer, {
       args: ["--lang=id-ID,id"],
-      headless: "shell",
+      headless: this.config.debug ? false : "new" as any,
       executablePath: executablePath(),
       defaultViewport: {
         width: 1920,
