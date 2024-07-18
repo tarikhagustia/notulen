@@ -15,7 +15,8 @@
     "puppeteer": "^22.13.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
-    "puppeteer-stream": "^3.0.15"
+    "puppeteer-stream": "^3.0.15",
+    "typescript": "^5.5.3"
   },
   "devDependencies": {
     "ts-node": "^10.9.2"

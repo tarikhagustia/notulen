@@ -61,7 +61,7 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     // setup puppeteer
     this.browser = await launch(puppeteer, {
       args: ["--lang=id-ID,id"],
-      headless: this.config.debug ? false : "new" as any,
+      headless: this.config.debug ? false : ("new" as any),
       executablePath: executablePath(),
       defaultViewport: {
         width: 1920,
@@ -87,42 +87,44 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     });
     await nameInput.focus();
     await this.page.keyboard.type(this.config.name);
+    await this.page.keyboard.press("Enter");
 
     // Waiting for join button appear and click
-    await this.page.waitForSelector(".S3hgFf");
-    const withoutMic = await this.page.waitForSelector(
-      'span[class="mUIrbf-vQzf8d"]'
-    );
-    await withoutMic.click();
-    await this.page.waitForSelector('span[class="VfPpkd-vQzf8d"]');
-    await nameInput.focus();
-    await this.page.keyboard.press("Enter");
+    await this.page.waitForSelector(Selector.JOIN_BUTTON);
+    // Check if selector exists and click it if exists
+    await this.page.click(Selector.CANCEL_ALLOW_MIC);
+
+    // Waiting for Meeting has been started
+    await this.page.waitForSelector(Selector.BUTTON_END_CALL, {
+      timeout: 0,
+      visible: true,
+    });
 
     // Start recording
     this.videoStream = await getStream(this.page, { audio: true, video: true });
     this.videoStream.pipe(this.videoFileStream);
 
-    // Waiting for Meeting has been started
-    await this.page.waitForSelector(".VYBDae-Bz112c-RLmnJb");
-
     // Enable to transribe
     const transribe = await this.page.waitForSelector(
-      "#yDmH0d > c-wiz > div.T4LgNb > div > div:nth-child(26) > div.crqnQb > div.fJsklc.nulMpf.Didmac.G03iKb > div > div > div.Tmb7Fd > div > div.juFBl > span > button"
+      Selector.ENABLE_TRANSRIBE_BUTTON,
+      {
+        timeout: 0,
+      }
     );
     await transribe.click();
 
     // change transribe language
     const settingButton = await this.page.waitForSelector(
-      "#yDmH0d > c-wiz > div > div > div:nth-child(26) > div.crqnQb > div.a4cQT > div.ooO90d.P9KVBf.jxX42 > div > span > div.VfPpkd-dgl2Hf-ppHlrf-sM5MNb > button",
+      Selector.CAPTION_SETTING,
       {
         visible: true,
         timeout: 0,
       }
     );
     await settingButton.click();
-    await this.page.waitForSelector("#dGhbkd");
+    await this.page.waitForSelector(Selector.TRANSRIBE_SETTING_CONTAINER);
     const t = await this.page.waitForSelector(
-      "div.XpcnW > div > div > div.VfPpkd-TkwUic"
+      Selector.TRANSRIBE_SETTING_BUTTON
     );
     await t.evaluate((b) => b.click());
     const langId = await this.page.waitForSelector(
@@ -132,7 +134,7 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     // wait for 1s using promise
     await new Promise((r) => setTimeout(r, 1000));
     const closeBtn = await this.page.waitForSelector(
-      "#yDmH0d > div.VfPpkd-Sx9Kwc.VfPpkd-Sx9Kwc-OWXEXe-vOE8Lb.VfPpkd-Sx9Kwc-OWXEXe-di8rgd-bN97Pc-QFlW2.cC1eCc.UDxLd.PzCPDd.zN0eDd.Kdui9b.VfPpkd-Sx9Kwc-OWXEXe-FNFY6c > div.VfPpkd-wzTsW > div > button"
+      Selector.TRANSRIBE_SETTING_CLOSE_BUTTON
     );
     await closeBtn.click();
 
@@ -179,8 +181,6 @@ export class Notulen extends EventEmitter implements NotulenInterface {
       }
     );
     await this.page.evaluate(whenSubtitleOn);
-
-    /* @ts-ignore */
   }
 
   public async stop(): Promise<void> {
@@ -214,8 +214,4 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     // Emit the end event
     this.emit("end", meetingResult);
   }
-}
-
-function setTranscribe(script: any[], last_speaker: string) {
-  throw new Error("Function not implemented.");
 }
