@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.15.0",
+    "ffmpeg-static": "^5.2.0",
     "puppeteer": "^22.13.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",

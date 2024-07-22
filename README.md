@@ -28,7 +28,7 @@ import { Notulen } from "@tarikhagustia/notulen";
 
 ```javascript
 import { Notulen } from "@tarikhagustia/notulen";
-import { MeetingResult } from "@tarikhagustia/notulen/interfaces";
+import { MeetingResult } from "@tarikhagustia/notulen";
 
 async function main() {
   const client = new Notulen({
@@ -37,8 +37,8 @@ async function main() {
     googleMeetUrl: "https://meet.google.com/xxx-xxx-xxx", // your google meet link
     language: "id-ID", // language for caption generation
     geminiApiKey: "secretApiKey", // google gemini api key (get it for free)
-    recordingLocation: './out' // location to save the recording
-    prompt: 'Kamu adalah seorang Asisten Note Takker, berdasarkan hasil meeting berupa transribe dibawah ini tolong buatkan summary meeting\n' // Optional, this is the default prompt that will be used to generate the summary
+    recordingLocation: './out', // location to save the recording
+    prompt: 'You are an Assistant Note Taker, based on the meeting results in the form of the transcript below, please make a summary of the meeting\n' // Optional, this is the default prompt that will be used to generate the summary
   });
 
     // Start join the meeting
@@ -58,8 +58,8 @@ main();
 ```
 ## Todos
 - [ ] Add logging feature
-- [ ] ffmpeg integration to convert the video to mp4
-- [ ] Able to change profile picture based on image or video
+- [x] ffmpeg integration to convert the video to mp4
+- [ ] Able to change profile picture based on image or video (not possible yet)
 - [ ] Integrate with more LLM APIs, will good if this package can be agnostic to the API
 
 ## Contributing
