@@ -8,6 +8,7 @@
     "/dist"
   ],
   "scripts": {
+    "build": "tsc",
     "example": "node --inspect -r ts-node/register examples/example.ts"
   },
   "dependencies": {
