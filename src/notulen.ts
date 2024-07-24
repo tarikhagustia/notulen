@@ -5,7 +5,7 @@ import {
   NotulenInterface,
   Transribe,
 } from "./interfaces";
-import { launch, getStream, wss } from "puppeteer-stream";
+import { launch, getStream } from "puppeteer-stream";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { Browser, Page } from "puppeteer-core";
 import { Selector } from "./selector";
@@ -13,8 +13,10 @@ import { whenSubtitleOn } from "./external";
 import EventEmitter from "events";
 import { transribeToText } from "./helpers";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { createWriteStream, WriteStream, existsSync, mkdirSync } from "fs";
+import { existsSync, mkdirSync } from "fs";
 import { Transform } from "stream";
+import { exec } from "child_process";
+import ffmpegPath from "ffmpeg-static";
 
 export class Notulen extends EventEmitter implements NotulenInterface {
   private browser: Browser;
@@ -22,7 +24,7 @@ export class Notulen extends EventEmitter implements NotulenInterface {
   private config: NotulenConfig;
   private transcribe: Transribe[] = [];
   private videoOutput: string;
-  private videoFileStream: WriteStream;
+  private videoFileStream: any;
   private videoStream: Transform;
   private meetingTitle: string;
 
@@ -47,7 +49,7 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     // cleanup double slashs
     this.videoOutput = `${
       config.recordingLocation
-    }/meeting-${Date.now()}.webm`.replace(/([^:])(\/\/+)/g, "$1/");
+    }/meeting-${Date.now()}.mp4`.replace(/([^:])(\/\/+)/g, "$1/");
 
     this.config = config;
   }
@@ -60,7 +62,7 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     puppeteer.use(stealthPlugin);
     // setup puppeteer
     this.browser = await launch(puppeteer, {
-      args: ["--lang=id-ID,id"],
+      args: ["--lang=en-US"],
       headless: this.config.debug ? false : ("new" as any),
       executablePath: executablePath(),
       defaultViewport: {
@@ -72,7 +74,9 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     this.page = await this.browser.newPage();
 
     // start video steam
-    this.videoFileStream = createWriteStream(this.videoOutput);
+    this.videoFileStream = exec(
+      `${ffmpegPath} -y -i - -r 30 ${this.videoOutput}`
+    );
   }
 
   public async listen(): Promise<void> {
@@ -90,9 +94,14 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     await this.page.keyboard.press("Enter");
 
     // Waiting for join button appear and click
-    await this.page.waitForSelector(Selector.JOIN_BUTTON);
-    // Check if selector exists and click it if exists
-    await this.page.click(Selector.CANCEL_ALLOW_MIC);
+    // do not throw error if the selector is not found
+    await this.waitSelector(Selector.JOIN_BUTTON, {
+      timeout: 2_000, // 2s
+      cb: async () => {
+        // Check if selector exists and click it if exists
+        await this.page.click(Selector.CANCEL_ALLOW_MIC);
+      },
+    });
 
     // Waiting for Meeting has been started
     await this.page.waitForSelector(Selector.BUTTON_END_CALL, {
@@ -102,7 +111,15 @@ export class Notulen extends EventEmitter implements NotulenInterface {
 
     // Start recording
     this.videoStream = await getStream(this.page, { audio: true, video: true });
-    this.videoStream.pipe(this.videoFileStream);
+
+    this.videoFileStream.stderr.on("data", (chunk) => {
+      console.log(chunk.toString());
+    });
+    this.videoStream.on("close", () => {
+      console.log("stream close");
+      this.videoFileStream.stdin.end();
+    });
+    this.videoStream.pipe(this.videoFileStream.stdin);
 
     // Enable to transribe
     const transribe = await this.page.waitForSelector(
@@ -183,10 +200,24 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     await this.page.evaluate(whenSubtitleOn);
   }
 
+  private async waitSelector(
+    selector: string,
+    { timeout = 0, cb }: { timeout?: number; cb?: Function } = {}
+  ): Promise<void> {
+    try {
+      await this.page.waitForSelector(selector, {
+        timeout,
+        visible: true,
+      });
+      await cb();
+    } catch (error) {
+      // TODO: Handle the errorF
+    }
+  }
+
   public async stop(): Promise<void> {
     // Stop File and video streaming
     await this.videoStream.destroy();
-    await this.videoFileStream.close();
 
     // Convert the transribe to summary
     const transcribe = transribeToText(this.transcribe);
