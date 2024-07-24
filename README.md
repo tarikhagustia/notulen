@@ -19,16 +19,16 @@ yarn add @tarikhagustia/notulen
 then you can use it in your project
 
 ```javascript
-const notulen = require("@tarikhagustia/notulen");
+const { Notulen } = require("@tarikhagustia/notulen");
 // or using ES6
-import notulen from "@tarikhagustia/notulen";
+import { Notulen } from "@tarikhagustia/notulen";
 ```
 
 ## Usage
 
 ```javascript
-import { Notulen } from "../src";
-import { MeetingResult } from "../src/interfaces";
+import { Notulen } from "@tarikhagustia/notulen";
+import { MeetingResult } from "@tarikhagustia/notulen/interfaces";
 
 async function main() {
   const client = new Notulen({
