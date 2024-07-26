@@ -8,7 +8,8 @@
     "/dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc",
     "example": "node --inspect -r ts-node/register examples/example.ts"
   },
   "dependencies": {

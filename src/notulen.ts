@@ -224,6 +224,7 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     this.page
       .waitForSelector(Selector.MEETING_TITLE, {
         hidden: true,
+        timeout: 0
       })
       .then(async () => {
         await this.stop();
