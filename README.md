@@ -57,8 +57,15 @@ async function main() {
 main();
 ```
 ## Todos
-- [ ] Add logging feature
+
 - [x] ffmpeg integration to convert the video to mp4
+- [x] Able to change audio and video quality
+- [x] detect if the bot is kicked from the meeting
+- [x] Video stream can be access publicly
+- [x] Able to not record the video
+- [x] Able to pause and resume the recording
+- [ ] Add logging feature
+- [ ] Change from plain prompt to template based prompt
 - [ ] Able to change profile picture based on image or video (not possible yet)
 - [ ] Integrate with more LLM APIs, will good if this package can be agnostic to the API
 

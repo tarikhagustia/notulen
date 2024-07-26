@@ -5,7 +5,7 @@ import {
   NotulenInterface,
   Transribe,
 } from "./interfaces";
-import { launch, getStream } from "puppeteer-stream";
+import { launch, getStream, getStreamOptions, wss } from "puppeteer-stream";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { Browser, Page } from "puppeteer-core";
 import { Selector } from "./selector";
@@ -18,6 +18,25 @@ import { Transform } from "stream";
 import { exec } from "child_process";
 import ffmpegPath from "ffmpeg-static";
 
+const defaultStreamOptions: Partial<getStreamOptions> = {
+  audio: true,
+  video: true,
+  videoConstraints: {
+    mandatory: {
+      width: { max: 1280 },
+      height: { max: 720 },
+      frameRate: { max: 15 },
+    },
+  },
+};
+
+export enum RecordingStatus {
+  NOT_STARTED = "not_started",
+  STARTED = "started",
+  PAUSED = "paused",
+  STOPPED = "stopped",
+}
+
 export class Notulen extends EventEmitter implements NotulenInterface {
   private browser: Browser;
   private page: Page;
@@ -25,8 +44,11 @@ export class Notulen extends EventEmitter implements NotulenInterface {
   private transcribe: Transribe[] = [];
   private videoOutput: string;
   private videoFileStream: any;
-  private videoStream: Transform;
   private meetingTitle: string;
+  private recordingStatus: RecordingStatus = RecordingStatus.NOT_STARTED;
+
+  // video stream can be public
+  private videoStream: Transform;
 
   constructor(config: NotulenConfig) {
     super();
@@ -51,6 +73,17 @@ export class Notulen extends EventEmitter implements NotulenInterface {
       config.recordingLocation
     }/meeting-${Date.now()}.mp4`.replace(/([^:])(\/\/+)/g, "$1/");
 
+    // merge the streamConfig
+    config.streamConfig = {
+      ...defaultStreamOptions,
+      ...config.streamConfig,
+    };
+
+    // default recordMeeting is true
+    if (config.recordMeeting === undefined) {
+      config.recordMeeting = true;
+    }
+
     this.config = config;
   }
 
@@ -65,18 +98,16 @@ export class Notulen extends EventEmitter implements NotulenInterface {
       args: ["--lang=en-US"],
       headless: this.config.debug ? false : ("new" as any),
       executablePath: executablePath(),
-      defaultViewport: {
-        width: 1920,
-        height: 1080,
-      },
     });
 
     this.page = await this.browser.newPage();
 
-    // start video steam
-    this.videoFileStream = exec(
-      `${ffmpegPath} -y -i - -r 30 ${this.videoOutput}`
-    );
+    // start video steam if recordMeeting is true
+    if (this.config.recordMeeting) {
+      this.videoFileStream = exec(
+        `${ffmpegPath} -y -i - -c:v copy -c:a copy ${this.videoOutput}`
+      );
+    }
   }
 
   public async listen(): Promise<void> {
@@ -110,16 +141,17 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     });
 
     // Start recording
-    this.videoStream = await getStream(this.page, { audio: true, video: true });
+    this.videoStream = await getStream(this.page, this.config.streamConfig);
 
-    this.videoFileStream.stderr.on("data", (chunk) => {
-      console.log(chunk.toString());
-    });
-    this.videoStream.on("close", () => {
-      console.log("stream close");
-      this.videoFileStream.stdin.end();
-    });
-    this.videoStream.pipe(this.videoFileStream.stdin);
+    // Start the video status
+    this.recordingStatus = RecordingStatus.STARTED;
+
+    if (this.config.recordMeeting) {
+      this.videoStream.on("close", () => {
+        this.videoFileStream.stdin.end();
+      });
+      this.videoStream.pipe(this.videoFileStream.stdin);
+    }
 
     // Enable to transribe
     const transribe = await this.page.waitForSelector(
@@ -183,10 +215,19 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     });
 
     // Set the meeting title
-    const meetingTitle = await this.page.waitForSelector(".u6vdEc.ouH3xe");
+    const meetingTitle = await this.page.waitForSelector(
+      Selector.MEETING_TITLE
+    );
     this.meetingTitle = await meetingTitle.evaluate((el) => el.textContent);
 
-    // TODO: Listen if the bot has been kicked from the meeting
+    // Listen if the bot has been kicked from the meeting
+    this.page
+      .waitForSelector(Selector.MEETING_TITLE, {
+        hidden: true,
+      })
+      .then(async () => {
+        await this.stop();
+      });
   }
 
   private async listenForTransribe() {
@@ -216,8 +257,19 @@ export class Notulen extends EventEmitter implements NotulenInterface {
   }
 
   public async stop(): Promise<void> {
+    // Skip if the recording has been stopped
+    if (this.recordingStatus === RecordingStatus.STOPPED) {
+      return;
+    }
+
+    // Stop the recording
+    this.recordingStatus = RecordingStatus.STOPPED;
+
     // Stop File and video streaming
     await this.videoStream.destroy();
+
+    // Stop WSS
+    (await wss).close();
 
     // Convert the transribe to summary
     const transcribe = transribeToText(this.transcribe);

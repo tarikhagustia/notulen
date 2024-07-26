@@ -1,3 +1,5 @@
+import { getStreamOptions } from "puppeteer-stream";
+
 export interface NotulenConfig {
   /**
    * The bot name.
@@ -28,6 +30,13 @@ export interface NotulenConfig {
   language: string;
 
   /**
+   * Record the meeting
+   *
+   * default is trues
+   */
+  recordMeeting?: boolean;
+
+  /**
    * The location to save the recording. if this is not provided, the recording will be saved in the current directory.
    */
   recordingLocation?: string;
@@ -37,4 +46,9 @@ export interface NotulenConfig {
    * if this is set to true, the chrome browser will be visible.
    */
   debug?: boolean;
+
+  /**
+   * Stream configuration
+   */
+  streamConfig?: getStreamOptions;
 }
