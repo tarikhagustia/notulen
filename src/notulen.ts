@@ -221,14 +221,15 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     this.meetingTitle = await meetingTitle.evaluate((el) => el.textContent);
 
     // Listen if the bot has been kicked from the meeting
-    this.page
-      .waitForSelector(Selector.MEETING_TITLE, {
-        hidden: true,
-        timeout: 0
-      })
-      .then(async () => {
-        await this.stop();
-      });
+    // Remove for now since the timeout is not working
+    // this.page
+    //   .waitForSelector(Selector.MEETING_TITLE, {
+    //     hidden: true,
+    //     timeout: 0
+    //   })
+    //   .then(async () => {
+    //     await this.stop();
+    //   });
   }
 
   private async listenForTransribe() {

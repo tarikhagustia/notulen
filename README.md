@@ -60,7 +60,7 @@ main();
 
 - [x] ffmpeg integration to convert the video to mp4
 - [x] Able to change audio and video quality
-- [x] detect if the bot is kicked from the meeting
+- [ ] detect if the bot is kicked from the meeting
 - [x] Video stream can be access publicly
 - [x] Able to not record the video
 - [x] Able to pause and resume the recording
