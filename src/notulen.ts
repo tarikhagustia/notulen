@@ -17,6 +17,14 @@ import { existsSync, mkdirSync } from "fs";
 import { Transform } from "stream";
 import { exec } from "child_process";
 import ffmpegPath from "ffmpeg-static";
+import pino from "pino";
+import pinoPretty from "pino-pretty";
+
+const logger = pino({
+  transport: {
+    target: "pino-pretty",
+  },
+});
 
 const defaultStreamOptions: Partial<getStreamOptions> = {
   audio: true,
@@ -100,6 +108,8 @@ export class Notulen extends EventEmitter implements NotulenInterface {
       executablePath: executablePath(),
     });
 
+    logger.info("Browser has been started");
+
     this.page = await this.browser.newPage();
 
     // start video steam if recordMeeting is true
@@ -107,6 +117,8 @@ export class Notulen extends EventEmitter implements NotulenInterface {
       this.videoFileStream = exec(
         `${ffmpegPath} -y -i - -c:v copy -c:a copy ${this.videoOutput}`
       );
+
+      logger.info("Video stream has been started");
     }
   }
 
@@ -114,6 +126,11 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     await this.setUp();
 
     await this.page.goto(this.config.googleMeetUrl);
+
+    logger.info(
+      "Google Meet has been opened on the link %s",
+      this.config.googleMeetUrl
+    );
 
     // Waiting for input email appear
     const nameInput = await this.page.waitForSelector(Selector.INPUT_NAME, {
@@ -124,23 +141,31 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     await this.page.keyboard.type(this.config.name);
     await this.page.keyboard.press("Enter");
 
+    logger.info("Name has been inputted");
+
     // Waiting for join button appear and click
     // do not throw error if the selector is not found
+    logger.info("Waiting for cancel allow mic button");
     await this.waitSelector(Selector.JOIN_BUTTON, {
       timeout: 2_000, // 2s
       cb: async () => {
+        logger.info("Cancel allow mic button has been clicked");
         // Check if selector exists and click it if exists
         await this.page.click(Selector.CANCEL_ALLOW_MIC);
       },
     });
 
     // Waiting for Meeting has been started
+    logger.info("Waiting for meeting has been started");
     await this.page.waitForSelector(Selector.BUTTON_END_CALL, {
       timeout: 0,
       visible: true,
     });
 
+    logger.info("Meeting has been started");
+
     // Start recording
+    logger.info("Start recording");
     this.videoStream = await getStream(this.page, this.config.streamConfig);
 
     // Start the video status
@@ -153,7 +178,18 @@ export class Notulen extends EventEmitter implements NotulenInterface {
       this.videoStream.pipe(this.videoFileStream.stdin);
     }
 
+    logger.info("Keep you safe button checking ...");
+    await this.waitSelector(Selector.MEET_KEEP_YOU_SAFE, {
+      timeout: 2_000, // 2s
+      cb: async () => {
+        logger.info("Keep you safe button exist and will click it");
+        // Check if selector exists and click it if exists
+        await this.page.click(Selector.MEET_KEEP_YOU_SAFE_BUTTON);
+      },
+    });
+
     // Enable to transribe
+    logger.info("Enable transribe");
     const transribe = await this.page.waitForSelector(
       Selector.ENABLE_TRANSRIBE_BUTTON,
       {
@@ -161,8 +197,10 @@ export class Notulen extends EventEmitter implements NotulenInterface {
       }
     );
     await transribe.click();
+    logger.info("Transribe has been enabled");
 
     // change transribe language
+    logger.info("Change transribe language to %s", this.config.language);
     const settingButton = await this.page.waitForSelector(
       Selector.CAPTION_SETTING,
       {
@@ -186,6 +224,10 @@ export class Notulen extends EventEmitter implements NotulenInterface {
       Selector.TRANSRIBE_SETTING_CLOSE_BUTTON
     );
     await closeBtn.click();
+    logger.info(
+      "Transribe language has been changed to %s",
+      this.config.language
+    );
 
     // Check if the participants goes to zero
     await this.page.exposeFunction(
@@ -222,14 +264,16 @@ export class Notulen extends EventEmitter implements NotulenInterface {
 
     // Listen if the bot has been kicked from the meeting
     // Remove for now since the timeout is not working
-    // this.page
-    //   .waitForSelector(Selector.MEETING_TITLE, {
-    //     hidden: true,
-    //     timeout: 0
-    //   })
-    //   .then(async () => {
-    //     await this.stop();
-    //   });
+    await this.page.evaluate(() => {
+      setInterval(() => {
+        const target = document.querySelector("h1[jsname='r4nke']");
+        // Check if target was exists
+        console.log("Checking", target);
+        if (target) {
+          onParticipantChange("0");
+        }
+      }, 1000);
+    });
   }
 
   private async listenForTransribe() {
