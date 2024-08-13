@@ -154,19 +154,19 @@ acorn@^8.11.0, acorn@^8.4.1:
   resolved "https://registry.npmjs.org/acorn/-/acorn-8.12.1.tgz"
   integrity sha512-tcpGyI9zbizT9JbV6oYE477V6mTlXvvi0T0G3SNIYE2apm/G5huBa1+K89VGeovbg+jycCrfhl3ADxErOuO6Jg==
 
-agent-base@6:
-  version "6.0.2"
-  resolved "https://registry.npmjs.org/agent-base/-/agent-base-6.0.2.tgz"
-  integrity sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==
-  dependencies:
-    debug "4"
-
 agent-base@^7.0.2, agent-base@^7.1.0, agent-base@^7.1.1:
   version "7.1.1"
   resolved "https://registry.npmjs.org/agent-base/-/agent-base-7.1.1.tgz"
   integrity sha512-H0TSyFNDMomMNJQBn8wFV5YC/2eJ+VXECwOadZJT554xP6cODZHPX3H9QMQECxvrgiSOP1pHjy1sMWQVYJOUOA==
   dependencies:
     debug "^4.3.4"
+
+agent-base@6:
+  version "6.0.2"
+  resolved "https://registry.npmjs.org/agent-base/-/agent-base-6.0.2.tgz"
+  integrity sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==
+  dependencies:
+    debug "4"
 
 ansi-regex@^5.0.1:
   version "5.0.1"
@@ -363,15 +363,15 @@ color-convert@^2.0.1:
   dependencies:
     color-name "~1.1.4"
 
-color-name@1.1.3:
-  version "1.1.3"
-  resolved "https://registry.npmjs.org/color-name/-/color-name-1.1.3.tgz"
-  integrity sha512-72fSenhMw2HZMTVHeCA9KCmpEIbzWiQsjN+BHcBbS9vr1mtt+vJjPdksIBNUmKAW8TFUDPJK5SUU3QhE9NEXDw==
-
 color-name@~1.1.4:
   version "1.1.4"
   resolved "https://registry.npmjs.org/color-name/-/color-name-1.1.4.tgz"
   integrity sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==
+
+color-name@1.1.3:
+  version "1.1.3"
+  resolved "https://registry.npmjs.org/color-name/-/color-name-1.1.3.tgz"
+  integrity sha512-72fSenhMw2HZMTVHeCA9KCmpEIbzWiQsjN+BHcBbS9vr1mtt+vJjPdksIBNUmKAW8TFUDPJK5SUU3QhE9NEXDw==
 
 colorette@^2.0.7:
   version "2.0.20"
@@ -418,7 +418,7 @@ dateformat@^4.6.3:
   resolved "https://registry.npmjs.org/dateformat/-/dateformat-4.6.3.tgz"
   integrity sha512-2P0p0pFGzHS5EMnhdxQi7aJN+iMheud0UhG4dlE1DLAlvL8JHjJJTX/CSm4JXwV0Ka5nGk3zC5mcb5bUQUxxMA==
 
-debug@4, debug@4.3.4, debug@^4.1.1, debug@^4.3.4:
+debug@^4.1.1, debug@^4.3.4, debug@4, debug@4.3.4:
   version "4.3.4"
   resolved "https://registry.npmjs.org/debug/-/debug-4.3.4.tgz"
   integrity sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==
@@ -446,7 +446,7 @@ degenerator@^5.0.0:
     escodegen "^2.1.0"
     esprima "^4.0.1"
 
-devtools-protocol@0.0.1299070:
+devtools-protocol@*, devtools-protocol@0.0.1299070:
   version "0.0.1299070"
   resolved "https://registry.npmjs.org/devtools-protocol/-/devtools-protocol-0.0.1299070.tgz"
   integrity sha512-+qtL3eX50qsJ7c+qVyagqi7AWMoQCBGNfoyJZMwm/NSXVqLYbuitrWEEIzxfUmTNy7//Xe8yhMmQ+elj3uAqSg==
@@ -715,7 +715,7 @@ inflight@^1.0.4:
     once "^1.3.0"
     wrappy "1"
 
-inherits@2, inherits@^2.0.3:
+inherits@^2.0.3, inherits@2:
   version "2.0.4"
   resolved "https://registry.npmjs.org/inherits/-/inherits-2.0.4.tgz"
   integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
@@ -1017,7 +1017,7 @@ process@^0.11.10:
   resolved "https://registry.npmjs.org/process/-/process-0.11.10.tgz"
   integrity sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==
 
-progress@2.0.3, progress@^2.0.3:
+progress@^2.0.3, progress@2.0.3:
   version "2.0.3"
   resolved "https://registry.npmjs.org/progress/-/progress-2.0.3.tgz"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
@@ -1049,7 +1049,7 @@ pump@^3.0.0:
     end-of-stream "^1.1.0"
     once "^1.3.1"
 
-puppeteer-core@22.13.0, puppeteer-core@^22.12.0:
+puppeteer-core@*, puppeteer-core@^22.12.0, puppeteer-core@22.13.0:
   version "22.13.0"
   resolved "https://registry.npmjs.org/puppeteer-core/-/puppeteer-core-22.13.0.tgz"
   integrity sha512-ZkpRX8nm/S39BnpcCverMzIc6oGWBPOUeOeaWRLKHqiKVCZ1l28HxPTYLitJlDiB16xZATSKpjul+sl+ZEm0HQ==
@@ -1098,7 +1098,7 @@ puppeteer-extra-plugin@^3.2.3:
     debug "^4.1.1"
     merge-deep "^3.0.1"
 
-puppeteer-extra@^3.3.6:
+puppeteer-extra@*, puppeteer-extra@^3.3.6:
   version "3.3.6"
   resolved "https://registry.npmjs.org/puppeteer-extra/-/puppeteer-extra-3.3.6.tgz"
   integrity sha512-rsLBE/6mMxAjlLd06LuGacrukP2bqbzKCLzV1vrhHFavqQE/taQ2UXv3H5P0Ls7nsrASa+6x3bDbXHpqMwq+7A==
@@ -1115,7 +1115,7 @@ puppeteer-stream@^3.0.15:
     puppeteer-core "^22.12.0"
     ws "^8.17.1"
 
-puppeteer@^22.13.0:
+puppeteer@*, puppeteer@^22.13.0:
   version "22.13.0"
   resolved "https://registry.npmjs.org/puppeteer/-/puppeteer-22.13.0.tgz"
   integrity sha512-nmICzeHTBtZiu+y4vs0fboe/NKIFwH5W8RZuxmEVAKNfBQg/8u5FEQAvPlWmyVpJoAVM5kXD5PEl3GlK3F9pPA==
@@ -1264,6 +1264,13 @@ streamx@^2.15.0, streamx@^2.18.0:
   optionalDependencies:
     bare-events "^2.2.0"
 
+string_decoder@^1.1.1, string_decoder@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.npmjs.org/string_decoder/-/string_decoder-1.3.0.tgz"
+  integrity sha512-hkRX8U1WjJFd8LsDJ2yQ/wWWxaopEsABU1XfkM8A+j0+85JAGppt16cr1Whg6KIbb4okU6Mql6BOj+uup/wKeA==
+  dependencies:
+    safe-buffer "~5.2.0"
+
 string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
   version "4.2.3"
   resolved "https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz"
@@ -1272,13 +1279,6 @@ string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
     emoji-regex "^8.0.0"
     is-fullwidth-code-point "^3.0.0"
     strip-ansi "^6.0.1"
-
-string_decoder@^1.1.1, string_decoder@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.npmjs.org/string_decoder/-/string_decoder-1.3.0.tgz"
-  integrity sha512-hkRX8U1WjJFd8LsDJ2yQ/wWWxaopEsABU1XfkM8A+j0+85JAGppt16cr1Whg6KIbb4okU6Mql6BOj+uup/wKeA==
-  dependencies:
-    safe-buffer "~5.2.0"
 
 strip-ansi@^6.0.0, strip-ansi@^6.0.1:
   version "6.0.1"
@@ -1367,7 +1367,7 @@ typedarray@^0.0.6:
   resolved "https://registry.npmjs.org/typedarray/-/typedarray-0.0.6.tgz"
   integrity sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==
 
-typescript@^5.5.3:
+typescript@^5.5.3, typescript@>=2.7, typescript@>=4.9.5:
   version "5.5.3"
   resolved "https://registry.npmjs.org/typescript/-/typescript-5.5.3.tgz"
   integrity sha512-/hreyEujaB0w76zKo6717l3L0o/qEUtRgdvUBvlkhoWeOVMjMuHNHk0BRBzikzuGDqNmPQbg5ifMEqsHLiIUcQ==

@@ -19,11 +19,11 @@
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "puppeteer-stream": "^3.0.15",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "pino": "^9.3.2",
+    "pino-pretty": "^11.2.2"
   },
   "devDependencies": {
-    "pino": "^9.3.2",
-    "pino-pretty": "^11.2.2",
     "ts-node": "^10.9.2"
   }
 }
