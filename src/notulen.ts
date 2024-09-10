@@ -115,7 +115,7 @@ export class Notulen extends EventEmitter implements NotulenInterface {
     // start video steam if recordMeeting is true
     if (this.config.recordMeeting) {
       this.videoFileStream = exec(
-        `${ffmpegPath} -y -i - -c:v copy -c:a copy ${this.videoOutput}`
+        `${ffmpegPath} -y -i - -c:v libx264 -preset veryfast -crf 22 -c:a aac ${this.videoOutput}`
       );
 
       logger.info("Video stream has been started");
